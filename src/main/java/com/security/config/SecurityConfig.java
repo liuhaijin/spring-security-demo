@@ -32,9 +32,35 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				out.flush();
 				out.close();
 			})
+			.failureHandler((req, res, e) -> {
+				res.setContentType("application/json;charset=utf-8");
+			    PrintWriter out = res.getWriter();
+			    out.write(e.getMessage());
+			    out.flush();
+			    out.close();
+			})
 			.permitAll()
 			.and()
-			.csrf().disable();
+            .logout()
+            .logoutUrl("/logout")
+            .logoutSuccessHandler((req, resp, authentication) -> {
+                resp.setContentType("application/json;charset=utf-8");
+                PrintWriter out = resp.getWriter();
+                out.write("注销成功");
+                out.flush();
+                out.close();
+            })
+            .permitAll()
+			.and()
+			.csrf().disable()
+			.exceptionHandling()
+			.authenticationEntryPoint((req, res, authException) -> {
+	            res.setContentType("application/json;charset=utf-8");
+	            PrintWriter out = res.getWriter();
+	            out.write("尚未登录，请先登录");
+	            out.flush();
+	            out.close();
+			});
 	}
 	
     @Bean
