@@ -2,6 +2,7 @@ package com.security.config;
 
 import java.io.PrintWriter;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -18,9 +19,13 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.security.service.UserService;
 
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+	
+	@Autowired
+	UserService userService;
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -100,14 +105,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.inMemoryAuthentication()
-			.withUser("javaboy")
-			.password("123")
-			.roles("admin")
-			.and()
-			.withUser("江南一点雨")
-			.password("123")
-			.roles("user");
+		auth.userDetailsService(userService);
 	}
 	
 	@Override
