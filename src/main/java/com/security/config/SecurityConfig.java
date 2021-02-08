@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -16,19 +17,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.security.filter.VerifyCodeFilter;
 import com.security.service.UserService;
 
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
+	VerifyCodeFilter verifyCodeFilter;
+	
+	@Autowired
 	UserService userService;
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		http.addFilterBefore(verifyCodeFilter, UsernamePasswordAuthenticationFilter.class);
 		http.authorizeRequests()
 			.antMatchers("/admin/**").hasRole("admin")
 			.antMatchers("/user/**").hasRole("user")
@@ -54,7 +61,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return (req, res, authException) -> {
 		    res.setContentType("application/json;charset=utf-8");
 		    PrintWriter out = res.getWriter();
-		    out.write("尚未登录，请先登录");
+	    	out.write("尚未登录，请先登录");
 		    out.flush();
 		    out.close();
 		};
@@ -110,7 +117,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers("/js/**", "/css/**","/images/**");
+		web.ignoring().antMatchers("/js/**", "/css/**","/images/**", "/vercode");
 	}	
 	
 
