@@ -20,7 +20,7 @@ public class VerifyCodeController {
         BufferedImage image = vc.getImage();
         String text = vc.getText();
         HttpSession session = req.getSession();
-        session.setAttribute("index_code", text);
+        session.setAttribute("verify_code", text);
         VerifyCode.output(image, resp.getOutputStream());
     }
 }
